@@ -1,0 +1,134 @@
+---
+title: "Regression Analytics"
+author: "Nikhil Reddy Addula"
+date: "2022-11-13"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1)Run the following code in R-studio to create two variables X and Y.
+
+```{r}
+set.seed(2017) 
+X=runif(100)*10 
+Y=X*4+3.45 
+Y=rnorm(100)*0.29*Y+Y 
+```
+
+a) Plot Y against X. Include a screenshot of the plot in your submission. Using the File menu you can save the graph as a picture on your computer. Based on the plot do you think we can fit a linear model to explain Y based on X?
+
+```{r}
+plot(Y~X,xlab ='X',ylab = 'Y',col='purple')
+abline(lsfit(X,Y),col='orange')
+```
+b)	Construct a simple linear model of Y based on X. Write the equation that explains Y based on X. What is the accuracy of this model?
+```{r}
+NR <- lm(Y~X)
+summary(NR)
+
+```
+Y=4.4655+3.6108*X
+Accuracy is 0.6517 or 65%
+
+c)	How the Coefficient of Determination, R2, of the model above is related to the correlation coefficient of X and Y?
+```{r}
+cor(X,Y)^2
+```
+The square of correlation coefficient is same as coefficient of determination 65.17% 
+#Coefficient of Determination= (Correlation Coefficient)2
+
+
+2) We will use the ‘mtcars’ dataset for this question. The dataset is already included in your R distribution. The dataset shows some of the characteristics of different cars. The following shows few samples (i.e. the first 6 rows) of the dataset.
+```{r}
+head(mtcars)
+```
+a) James wants to buy a car. He and his friend, Chris, have different opinions about the Horse Power (hp) of cars. James think the weight of a car (wt) can be used to estimate the Horse Power of the car while Chris thinks the fuel consumption expressed in Mile Per Gallon (mpg), is a better estimator of the (hp). Who do you think is right? Construct simple linear models using mtcars data to answer the question.
+```{r}
+# Creates a linear model for weight vs horsepower and displays a plot of the points
+plot(mtcars$hp~mtcars$wt,xlab ='Weight',ylab = 'HP', col='blue')
+abline(lsfit(mtcars$wt,mtcars$hp),col= 'maroon')
+lp_model1 <- lm(formula = hp~wt, data = mtcars)
+summary(lp_model1)
+```
+model we can see that weight results in a model that accounts for 43.39% of the variation in horsepower.
+
+```{r}
+# Creates a linear model for mpg vs horsepower and displays a plot of the points
+plot(mtcars$hp~mtcars$mpg,xlab ='MPG',ylab = 'HP', col='blue')
+abline(lsfit(mtcars$mpg,mtcars$hp),col= 'maroon')
+lp_model2 <- lm(formula = hp~mpg, data = mtcars)
+summary(lp_model2)
+```
+We can see that a model that incorporates fuel efficiency yields one that explains 60.24% of the variation in horsepower. Fuel economy (mpg) is therefore regarded in this model as statistically significant.
+
+b) Build a model that uses the number of cylinders (cyl) and the mile per gallon (mpg) values of a car to predict the car Horse Power (hp). Using this model, what is the estimated Horse Power of a car with 4 calendar and mpg of 22? 
+```{r}
+LP_Model3 <-lm(hp~cyl+mpg,data=mtcars)
+summary(LP_Model3)
+```
+
+```{r}
+# Predict the estimated horse power of a car with 4 cylinders and 22 mpg
+predict(LP_Model3, data.frame(mpg = 22, cyl = 4 ))
+```
+The estimated Horse Power of a car with 4 calendar and mpg of 22 is 88.93%
+
+3) For this question, we are going to use BostonHousing dataset. The dataset is in ‘mlbench’ package, so we first need to instal the package, call the library and the load the dataset using the following commands
+```{r}
+#install.packages('mlbench')
+library(mlbench)
+data(BostonHousing)
+```
+
+a) Build a model to estimate the median value of owner-occupied homes (medv)based on the following variables: crime crate (crim), proportion of residential land zoned for lots over 25,000 sq.ft (zn), the local pupil-teacher ratio (ptratio) and weather the whether the tract bounds Chas River(chas). Is this an accurate model? (Hint check R2 )
+```{r}
+# Create a linear model for median value based on crim, zn, ptratio, and chas.
+set.seed(123)
+LP_Model4<-lm(medv~crim+zn+ptratio+chas,data = BostonHousing)
+summary(LP_Model4)
+```
+The variability in the median house value was 35.99% of the R2 value in this model (crim, zn, ptratio, and chas). In terms of accuracy, this is a weak model that might be strengthened by including more variables.
+
+b) Use the estimated coefficient to answer these questions?
+
+I)	Imagine two houses that are identical in all aspects but one bounds the Chas River and the other does not. Which one is more expensive and by how much? 
+
+Answer:Based on the coefficients, the resulting formula from our model is:
+medv = 49.91868 - 0.26018crim + 0.07073zn - 1.49367ptratio + 4.58393chas1
+Therefore, if the only difference between two houses is that one borders the Chas River, then we would only focus on the chas variable coefficient. The house that borders the river would be $4,583.93 more than the one that does not.
+4.58393 (coeff of chas) * 1 (value of chas) * 1000 (medv in $1,000 units) = $4,583.93
+
+
+II)	Imagine two houses that are identical in all aspects but in the neighborhood of one of them the pupil-teacher ratio is 15 and in the other one is 18. Which one is more expensive and by how much? 
+
+Answer: Based on the coefficients, the resulting formula from our model is:
+medv = 49.91868 - 0.26018crim + 0.07073zn - 1.49367ptratio + 4.58393chas1
+Therefore, if the only difference between two houses is the pupil-teacher ratio, then we would only focus on the ptratio variable coefficient. As a result, the house with the smaller pupil-teacher ratio value would be more expensive, because the coefficient is found to be negative in our model. The difference in values between the houses would be:
+-1.49367 (coeff of ptratio) * 0.03 (difference between ptratio values) * 1000 (medv in $1,000 units) = $44.81
+Therefore, the house with the lower pupil-teacher ratio would be $44.81 more expensive based on our model.
+
+
+
+c)	Which of the variables are statistically important (i.e. related to the house price)? Hint: use the p-values of the coefficients to answer.
+
+Based on the model developed from these variables, it was shown that all of the variables (crim, zn, ptratio, and chas) are statistically significant. This is true since no p-values from our model's results went over the 0.05 level of significance.
+
+d)	Use the anova analysis and determine the order of importance of these four variables.(5 marks) 
+```{r}
+# Returns the ANOVA results for the model used in this problem
+anova(LP_Model4)
+```
+
+The significance of these factors is ranked in the following order according to the ANOVA values:
+
+1. "Crim" - 15.08% of the model's variability is explained by this term.
+2. "ptratio" - accounts for 11.02% of the model's variability.
+3. "Zn" - accounts for 8.32% of the model's variability.
+4. "chas" - accounts for 1.56% of the model's variability.
+
+Furthermore, the residuals in this model still contribute 64.01 percent of its variability, indicating that there is still much space for this model's accuracy to be enhanced.
